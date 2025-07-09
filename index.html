@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Gateway</title>
+    <style>
+        :root {
+            --primary: #6a5acd;
+            --secondary: #9370db;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --info: #17a2b8;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .payment-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .payment-header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .payment-header h2 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .payment-body {
+            padding: 30px;
+        }
+
+        .payment-method {
+            margin-bottom: 25px;
+        }
+
+        .payment-method h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+            font-size: 18px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .method-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #eee;
+        }
+
+        .method-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .method-option.active {
+            border-color: var(--primary);
+            background-color: rgba(106, 90, 205, 0.05);
+        }
+
+        .method-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+            object-fit: contain;
+        }
+
+        .method-details {
+            flex: 1;
+        }
+
+        .method-title {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .method-info {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .payment-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+
+        .payment-details.active {
+            max-height: 500px;
+            margin-top: 15px;
+        }
+
+        .detail-box {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .qr-code {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .qr-code img {
+            max-width: 200px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+        }
+
+        .qr-code p {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .copy-box {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .copy-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            padding: 5px;
+            background: transparent;
+        }
+
+        .copy-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .copy-btn:hover {
+            background-color: var(--secondary);
+        }
+
+        .instructions {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 90, 205, 0.4);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateX(200%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 576px) {
+            .payment-body {
+                padding: 20px;
+            }
+            
+            .method-option {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="payment-header">
+            <h2>Payment Gateway</h2>
+            <p>Select your preferred payment method</p>
+        </div>
+        
+        <div class="payment-body">
+            <div class="payment-method">
+                <h3>Choose Payment Method</h3>
+                
+                <!-- DANA -->
+                <div class="method-option" data-method="dana">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_DANA.svg" alt="DANA" class="method-icon">
+                    <div class="method-details">
+                        <div class="method-title">DANA</div>
+                        <div class="method-info">Pay using DANA wallet</div>
+                    </div>
+                </div>
+                
+                <!-- QRIS -->
+                <div class="method-option" data-method="qris">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png" alt="QRIS" class="method-icon">
+                    <div class="method-details">
+                        <div class="method-title">QRIS</div>
+                        <div class="method-info">Scan QR code to pay</div>
+                    </div>
+                </div>
+                
+                <!-- Gopay -->
+                <div class="method-option" data-method="gopay">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/2560px-Gopay_logo.svg.png" alt="Gopay" class="method-icon">
+                    <div class="method-details">
+                        <div class="method-title">Gopay</div>
+                        <div class="method-info">Pay using Gopay wallet</div>
+                    </div>
+                </div>
+                
+                <!-- OVO -->
+                <div class="method-option" data-method="ovo">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Logo_ovo_purple.svg/2560px-Logo_ovo_purple.svg.png" alt="OVO" class="method-icon">
+                    <div class="method-details">
+                        <div class="method-title">OVO</div>
+                        <div class="method-info">Pay using OVO wallet</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- DANA Payment Details -->
+            <div class="payment-details" id="dana-details">
+                <div class="detail-box">
+                    <div class="copy-box">
+                        <input type="text" class="copy-input" value="085713532037" readonly>
+                        <button class="copy-btn" data-clipboard-text="085713532037">Copy</button>
+                    </div>
+                    <div class="instructions">
+                        <p>To complete payment via DANA:</p>
+                        <ol>
+                            <li>Open DANA app on your phone</li>
+                            <li>Go to Send Money section</li>
+                            <li>Enter the phone number above</li>
+                            <li>Input the payment amount</li>
+                            <li>Complete the transaction</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- QRIS Payment Details -->
+            <div class="payment-details" id="qris-details">
+                <div class="detail-box">
+                    <div class="qr-code">
+                        <img src="https://qu.ax/HUzwQ.jpg" alt="QRIS Code">
+                        <p>Scan this QR code using your banking/mobile payment app</p>
+                    </div>
+                    <div class="instructions">
+                        <p>To complete payment via QRIS:</p>
+                        <ol>
+                            <li>Open your banking/mobile payment app</li>
+                            <li>Select QRIS/Scan QR code</li>
+                            <li>Point your camera at the QR code above</li>
+                            <li>Input the payment amount</li>
+                            <li>Complete the transaction</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gopay Payment Details -->
+            <div class="payment-details" id="gopay-details">
+                <div class="detail-box">
+                    <div class="copy-box">
+                        <input type="text" class="copy-input" value="085800258793" readonly>
+                        <button class="copy-btn" data-clipboard-text="085800258793">Copy</button>
+                    </div>
+                    <div class="instructions">
+                        <p>To complete payment via Gopay:</p>
+                        <ol>
+                            <li>Open Gopay app on your phone</li>
+                            <li>Go to Send Money section</li>
+                            <li>Enter the phone number above</li>
+                            <li>Input the payment amount</li>
+                            <li>Complete the transaction</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- OVO Payment Details -->
+            <div class="payment-details" id="ovo-details">
+                <div class="detail-box">
+                    <div class="copy-box">
+                        <input type="text" class="copy-input" value="085800258793" readonly>
+                        <button class="copy-btn" data-clipboard-text="085800258793">Copy</button>
+                    </div>
+                    <div class="instructions">
+                        <p>To complete payment via OVO:</p>
+                        <ol>
+                            <li>Open OVO app on your phone</li>
+                            <li>Go to Transfer section</li>
+                            <li>Enter the phone number above</li>
+                            <li>Input the payment amount</li>
+                            <li>Complete the transaction</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn-submit" id="confirm-btn">Confirm Payment</button>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast">Copied to clipboard!</div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const methodOptions = document.querySelectorAll('.method-option');
+            const paymentDetails = document.querySelectorAll('.payment-details');
+            const confirmBtn = document.getElementById('confirm-btn');
+            const toast = document.getElementById('toast');
+            let selectedMethod = null;
+            
+            // Initialize ClipboardJS for copy buttons
+            new ClipboardJS('.copy-btn');
+            
+            // Method selection
+            methodOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove active class from all options
+                    methodOptions.forEach(opt => opt.classList.remove('active'));
+                    
+                    // Add active class to selected option
+                    this.classList.add('active');
+                    
+                    // Hide all payment details
+                    paymentDetails.forEach(detail => detail.classList.remove('active'));
+                    
+                    // Show selected payment details
+                    const method = this.getAttribute('data-method');
+                    document.getElementById(`${method}-details`).classList.add('active');
+                    
+                    selectedMethod = method;
+                });
+            });
+            
+            // Copy button click handler
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    showToast();
+                });
+            });
+            
+            // Confirm button click handler
+            confirmBtn.addEventListener('click', function() {
+                if (!selectedMethod) {
+                    alert('Please select a payment method first');
+                    return;
+                }
+                
+                alert(`Please complete the payment using ${selectedMethod.toUpperCase()}. Thank you!`);
+            });
+            
+            // Show toast notification
+            function showToast() {
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Select first method by default
+            if (methodOptions.length > 0) {
+                methodOptions[0].click();
+            }
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+</body>
+</html>
