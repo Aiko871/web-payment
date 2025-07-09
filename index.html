@@ -1,448 +1,392 @@
+<!-- langsung tempel seluruh kode ini -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Gateway</title>
-    <style>
-        :root {
-            --primary: #6a5acd;
-            --secondary: #9370db;
-            --light: #f8f9fa;
-            --dark: #343a40;
-            --success: #28a745;
-            --info: #17a2b8;
-            --warning: #ffc107;
-            --danger: #dc3545;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nationalyti Store</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0d0d0d;
+      color: #fff;
+      padding-bottom: 50px;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+    /* Loading Screen Neon Dark */
+    #loadingScreen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      animation: fadeOut 1s ease-out 1.8s forwards;
+    }
+    #loadingScreen h1 {
+      font-size: 2em;
+      color: #ff0055;
+      text-shadow: 0 0 5px #ff0055, 0 0 10px #ff0055, 0 0 15px #ff00aa, 0 0 20px #aa00ff;
+      animation: pulse 2s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
 
-        body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .payment-container {
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 500px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .payment-header {
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .payment-header h2 {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .payment-body {
-            padding: 30px;
-        }
-
-        .payment-method {
-            margin-bottom: 25px;
-        }
-
-        .payment-method h3 {
-            margin-bottom: 15px;
-            color: var(--dark);
-            font-size: 18px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        .method-option {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 1px solid #eee;
-        }
-
-        .method-option:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border-color: var(--primary);
-        }
-
-        .method-option.active {
-            border-color: var(--primary);
-            background-color: rgba(106, 90, 205, 0.05);
-        }
-
-        .method-icon {
-            width: 40px;
-            height: 40px;
-            margin-right: 15px;
-            object-fit: contain;
-        }
-
-        .method-details {
-            flex: 1;
-        }
-
-        .method-title {
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 5px;
-        }
-
-        .method-info {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .payment-details {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-out;
-        }
-
-        .payment-details.active {
-            max-height: 500px;
-            margin-top: 15px;
-        }
-
-        .detail-box {
-            background-color: #f9f9f9;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-        }
-
-        .qr-code {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .qr-code img {
-            max-width: 200px;
-            border: 1px solid #eee;
-            border-radius: 10px;
-        }
-
-        .qr-code p {
-            margin-top: 10px;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .copy-box {
-            display: flex;
-            align-items: center;
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-
-        .copy-input {
-            flex: 1;
-            border: none;
-            outline: none;
-            font-size: 14px;
-            padding: 5px;
-            background: transparent;
-        }
-
-        .copy-btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-
-        .copy-btn:hover {
-            background-color: var(--secondary);
-        }
-
-        .instructions {
-            font-size: 14px;
-            color: #666;
-            line-height: 1.6;
-        }
-
-        .instructions ol {
-            padding-left: 20px;
-            margin-top: 10px;
-        }
-
-        .instructions li {
-            margin-bottom: 5px;
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(106, 90, 205, 0.4);
-        }
-
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: var(--success);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transform: translateX(200%);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-        }
-
-        .toast.show {
-            transform: translateX(0);
-        }
-
-        @media (max-width: 576px) {
-            .payment-body {
-                padding: 20px;
-            }
-            
-            .method-option {
-                padding: 12px;
-            }
-        }
-    </style>
+    /* Gaya lainnya sama seperti sebelumnya */
+    .gif-wrapper img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    header {
+      text-align: center;
+      padding: 20px 20px 10px;
+    }
+    h1 {
+      font-size: 2.2em;
+      font-weight: 800;
+      background: linear-gradient(45deg, #ff004c, #a200ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .features {
+      display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;
+      margin: 20px 0;
+    }
+    .feature {
+      background: #1a1a1a;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      color: #ccc;
+    }
+    section {
+      background: #111;
+      padding: 30px 20px;
+      border-radius: 20px;
+      max-width: 850px;
+      margin: 20px auto;
+      box-shadow: 0 0 10px rgba(255, 0, 100, 0.3);
+    }
+    .toggle { text-align: center; margin-bottom: 20px; }
+    .toggle button {
+      background: #222;
+      color: #aaa;
+      padding: 10px 20px;
+      border: 2px solid #333;
+      border-radius: 8px;
+      margin: 0 10px;
+      cursor: pointer;
+      position: relative;
+    }
+    .toggle button.active {
+      background: linear-gradient(45deg, #ff004c, #a200ff);
+      color: #fff;
+    }
+    .toggle button.active::after {
+      content: '✔';
+      position: absolute;
+      top: -8px; right: -8px;
+      background: #ff0077;
+      color: #000;
+      border-radius: 50%;
+      font-size: 12px;
+      padding: 2px 5px;
+    }
+    .desc {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #bbb;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 15px;
+    }
+    .card {
+      background: #1c1c1c;
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+      border: 2px solid transparent;
+      cursor: pointer;
+      position: relative;
+      transition: 0.3s;
+    }
+    .card:hover {
+      border-color: #ff00c8;
+    }
+    .card.selected {
+      border: 2px solid #ff00b3;
+    }
+    .card.selected::after {
+      content: '✔';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #ff007a;
+      color: #000;
+      border-radius: 50%;
+      font-size: 12px;
+      padding: 2px 6px;
+    }
+    .preview {
+      max-width: 400px;
+      margin: 30px auto 20px;
+      background: #1a1a1a;
+      border-left: 4px solid #ff007a;
+      padding: 15px;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      font-family: monospace;
+      color: #ccc;
+    }
+    .payment {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .dana-box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .dana-box input {
+      background: #fff;
+      color: #000;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      width: 160px;
+      text-align: center;
+    }
+    .dana-box button {
+      background: linear-gradient(45deg, #ff004c, #a200ff);
+      color: #fff;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .copied {
+      color: #00ff99;
+      margin-top: 6px;
+      font-size: 0.9em;
+    }
+    .qr img {
+      width: 160px;
+      border-radius: 10px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    .zoomed {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      backdrop-filter: blur(8px);
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+    .zoomed img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 12px;
+    }
+    .info {
+      text-align: center;
+      margin: 20px 0;
+      color: #999;
+    }
+    .buy {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    .buy a {
+      background: linear-gradient(45deg, #ff004c, #a200ff);
+      color: white;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .sosmed {
+      text-align: center;
+    }
+    .sosmed a {
+      display: inline-block;
+      background: #1a1a1a;
+      color: #fff;
+      margin: 5px;
+      padding: 10px 15px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.9em;
+    }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      color: #777;
+      font-size: 0.85em;
+    }
+  </style>
 </head>
 <body>
-    <div class="payment-container">
-        <div class="payment-header">
-            <h2>Payment Gateway</h2>
-            <p>Select your preferred payment method</p>
-        </div>
-        
-        <div class="payment-body">
-            <div class="payment-method">
-                <h3>Choose Payment Method</h3>
-                
-                <!-- DANA -->
-                <div class="method-option" data-method="dana">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_DANA.svg" alt="DANA" class="method-icon">
-                    <div class="method-details">
-                        <div class="method-title">DANA</div>
-                        <div class="method-info">Pay using DANA wallet</div>
-                    </div>
-                </div>
-                
-                <!-- QRIS -->
-                <div class="method-option" data-method="qris">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png" alt="QRIS" class="method-icon">
-                    <div class="method-details">
-                        <div class="method-title">QRIS</div>
-                        <div class="method-info">Scan QR code to pay</div>
-                    </div>
-                </div>
-                
-                <!-- Gopay -->
-                <div class="method-option" data-method="gopay">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/2560px-Gopay_logo.svg.png" alt="Gopay" class="method-icon">
-                    <div class="method-details">
-                        <div class="method-title">Gopay</div>
-                        <div class="method-info">Pay using Gopay wallet</div>
-                    </div>
-                </div>
-                
-                <!-- OVO -->
-                <div class="method-option" data-method="ovo">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Logo_ovo_purple.svg/2560px-Logo_ovo_purple.svg.png" alt="OVO" class="method-icon">
-                    <div class="method-details">
-                        <div class="method-title">OVO</div>
-                        <div class="method-info">Pay using OVO wallet</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- DANA Payment Details -->
-            <div class="payment-details" id="dana-details">
-                <div class="detail-box">
-                    <div class="copy-box">
-                        <input type="text" class="copy-input" value="085713532037" readonly>
-                        <button class="copy-btn" data-clipboard-text="085713532037">Copy</button>
-                    </div>
-                    <div class="instructions">
-                        <p>To complete payment via DANA:</p>
-                        <ol>
-                            <li>Open DANA app on your phone</li>
-                            <li>Go to Send Money section</li>
-                            <li>Enter the phone number above</li>
-                            <li>Input the payment amount</li>
-                            <li>Complete the transaction</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- QRIS Payment Details -->
-            <div class="payment-details" id="qris-details">
-                <div class="detail-box">
-                    <div class="qr-code">
-                        <img src="https://qu.ax/HUzwQ.jpg" alt="QRIS Code">
-                        <p>Scan this QR code using your banking/mobile payment app</p>
-                    </div>
-                    <div class="instructions">
-                        <p>To complete payment via QRIS:</p>
-                        <ol>
-                            <li>Open your banking/mobile payment app</li>
-                            <li>Select QRIS/Scan QR code</li>
-                            <li>Point your camera at the QR code above</li>
-                            <li>Input the payment amount</li>
-                            <li>Complete the transaction</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Gopay Payment Details -->
-            <div class="payment-details" id="gopay-details">
-                <div class="detail-box">
-                    <div class="copy-box">
-                        <input type="text" class="copy-input" value="085800258793" readonly>
-                        <button class="copy-btn" data-clipboard-text="085800258793">Copy</button>
-                    </div>
-                    <div class="instructions">
-                        <p>To complete payment via Gopay:</p>
-                        <ol>
-                            <li>Open Gopay app on your phone</li>
-                            <li>Go to Send Money section</li>
-                            <li>Enter the phone number above</li>
-                            <li>Input the payment amount</li>
-                            <li>Complete the transaction</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- OVO Payment Details -->
-            <div class="payment-details" id="ovo-details">
-                <div class="detail-box">
-                    <div class="copy-box">
-                        <input type="text" class="copy-input" value="085800258793" readonly>
-                        <button class="copy-btn" data-clipboard-text="085800258793">Copy</button>
-                    </div>
-                    <div class="instructions">
-                        <p>To complete payment via OVO:</p>
-                        <ol>
-                            <li>Open OVO app on your phone</li>
-                            <li>Go to Transfer section</li>
-                            <li>Enter the phone number above</li>
-                            <li>Input the payment amount</li>
-                            <li>Complete the transaction</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-            
-            <button class="btn-submit" id="confirm-btn">Confirm Payment</button>
-        </div>
+
+  <!-- Neon Loading Screen -->
+  <div id="loadingScreen">
+    <h1>Loading 𝕬𝖎𝖐𝖔 𝕺𝖋𝖋𝖎𝖈𝖎𝖆𝖑...</h1>
+  </div>
+  
+  <header>
+    <h1>𝐌𝖆𝖗𝖐𝖊𝖙 𝐃𝖎𝖌𝖎𝖙𝖆𝖑 𝐇𝖔𝖘𝖙𝖎𝖓𝖌</h1>
+    <div class="features">
+      <div class="feature">⚡ Anti Lemot</div>
+      <div class="feature" id="spek">🧠 Spek R34 C8</div>
+      <div class="feature">🕒 Panel ON 24 Jam</div>
     </div>
-    
-    <div class="toast" id="toast">Copied to clipboard!</div>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const methodOptions = document.querySelectorAll('.method-option');
-            const paymentDetails = document.querySelectorAll('.payment-details');
-            const confirmBtn = document.getElementById('confirm-btn');
-            const toast = document.getElementById('toast');
-            let selectedMethod = null;
-            
-            // Initialize ClipboardJS for copy buttons
-            new ClipboardJS('.copy-btn');
-            
-            // Method selection
-            methodOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    // Remove active class from all options
-                    methodOptions.forEach(opt => opt.classList.remove('active'));
-                    
-                    // Add active class to selected option
-                    this.classList.add('active');
-                    
-                    // Hide all payment details
-                    paymentDetails.forEach(detail => detail.classList.remove('active'));
-                    
-                    // Show selected payment details
-                    const method = this.getAttribute('data-method');
-                    document.getElementById(`${method}-details`).classList.add('active');
-                    
-                    selectedMethod = method;
-                });
-            });
-            
-            // Copy button click handler
-            document.querySelectorAll('.copy-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    showToast();
-                });
-            });
-            
-            // Confirm button click handler
-            confirmBtn.addEventListener('click', function() {
-                if (!selectedMethod) {
-                    alert('Please select a payment method first');
-                    return;
-                }
-                
-                alert(`Please complete the payment using ${selectedMethod.toUpperCase()}. Thank you!`);
-            });
-            
-            // Show toast notification
-            function showToast() {
-                toast.classList.add('show');
-                
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 3000);
-            }
-            
-            // Select first method by default
-            if (methodOptions.length > 0) {
-                methodOptions[0].click();
-            }
-        });
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+  </header>
+
+  <section>
+    <div class="toggle">
+      <button onclick="selectPanel('private')" id="btnPrivate" class="active">Panel Private</button>
+      <button onclick="selectPanel('public')" id="btnPublic">Panel Public</button>
+    </div>
+
+    <div class="desc" id="panelDesc">Panel Private Spek R34 C8, Anti Lemot Dan Stabil, Cocok Untuk SC Size Gede.</div>
+    <div class="cards" id="paketList"></div>
+    <div class="preview" id="previewBox">Silakan pilih paket panel.</div>
+
+    <div class="payment">
+      <h4>Nomor DANA:</h4>
+      <div class="dana-box">
+        <input type="text" id="danaNumber" value="0857-1353-2037" readonly />
+        <button onclick="copyDana()">Salin</button>
+      </div>
+      <span id="copyNotif" class="copied" style="display:none;">✅ Tersalin ke clipboard</span>
+
+      <div class="qr">
+        <h4 style="margin-top: 20px;">QRIS:</h4>
+        <img src="https://qu.ax/HUzwQ.jpg" alt="QRIS" onclick="zoomQR(this.src)">
+      </div>
+    </div>
+
+    <div class="info">Kirim bukti transfer melalui WhatsApp.<br>Klik tombol di bawah.</div>
+
+    <div class="buy">
+      <a id="whatsappLink" href="#" target="_blank">Beli via WhatsApp</a>
+    </div>
+
+    <div class="sosmed">
+      <a href="https://whatsapp.com/channel/0029VbAlHRX2kNFp8SYJh61L"
+        target="_blank">📱 WhatsApp Channel</a>
+      <a href="https://www.youtube.com/@aikoforce"
+        target="_blank">▶️ YouTube</a>
+      <a href="https://tiktok.com/"
+        target="_blank">🎵 TikTok</a>
+      <a href="https://www.instagram.com/"
+        target="_blank">📷 Instagram</a>
+    </div>
+  </section>
+
+  <div class="zoomed" id="zoomBox" style="display:none;" onclick="this.style.display='none'">
+    <img id="zoomedImg" src="">
+  </div>
+
+  <footer>
+    Author: Nationalyti — Not Copyright
+  </footer>
+
+  <script>
+    const panelData = {
+      private: {
+        spek: '🧠 Spek R34 C8',
+        desc: 'Panel Private Spek R34 C8, Anti Lemot Dan Stabil, Cocok Untuk SC Size Gede.',
+        hargaList: [2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000]
+      },
+      public: {
+        spek: '🧠 Spek R16 C4',
+        desc: 'Panel Public Spek R16 C4, Cocok Untuk Kebutuhan Standar Dan Hemat.',
+        hargaList: [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]
+      }
+    };
+
+    let currentPanel = 'private';
+    let selectedCard = null;
+
+    function selectPanel(type) {
+      currentPanel = type;
+      document.getElementById('btnPrivate').classList.toggle('active', type === 'private');
+      document.getElementById('btnPublic').classList.toggle('active', type === 'public');
+      document.getElementById('panelDesc').innerText = panelData[type].desc;
+      document.getElementById('spek').innerText = panelData[type].spek;
+      renderPaket();
+      document.getElementById('previewBox').innerText = 'Silakan pilih paket panel.';
+      document.getElementById('whatsappLink').href = "#";
+    }
+
+    function renderPaket() {
+      const list = document.getElementById('paketList');
+      list.innerHTML = '';
+      const hargaList = panelData[currentPanel].hargaList;
+      for (let i = 1; i <= hargaList.length; i++) {
+        const harga = hargaList[i - 1];
+        let label = i === 10 ? 'Unlimited RAM & CPU' : `${i} GB`;
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `<h3>Panel ${label}</h3><p>Rp ${harga.toLocaleString()}</p>`;
+        div.onclick = () => generateWhatsApp(div, label, harga);
+        list.appendChild(div);
+      }
+    }
+
+    function generateWhatsApp(el, paket, harga) {
+      if (selectedCard) selectedCard.classList.remove('selected');
+      el.classList.add('selected');
+      selectedCard = el;
+      const panelUpper = currentPanel.toUpperCase();
+      const pesan = `┌────[ PESANAN PANEL ]────\n│ Panel   : ${panelUpper}\n│ Paket   : ${paket}\n│ Harga   : Rp ${harga.toLocaleString()}\n│ Status  : Belum Dibayar\n└──────────────────────`;
+      document.getElementById('previewBox').innerText = pesan;
+      document.getElementById('whatsappLink').href = `https://wa.me/628895485706?text=${encodeURIComponent(pesan)}`;
+    }
+
+    function copyDana() {
+      const dana = document.getElementById("danaNumber").value;
+      navigator.clipboard.writeText(dana);
+      const notif = document.getElementById("copyNotif");
+      notif.style.display = "block";
+      setTimeout(() => notif.style.display = "none", 2000);
+    }
+
+    function zoomQR(src) {
+      document.getElementById('zoomedImg').src = src;
+      document.getElementById('zoomBox').style.display = "flex";
+    }
+
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("loadingScreen").style.display = "none";
+      }, 2000);
+    });
+
+    renderPaket();
+  </script>
 </body>
 </html>
